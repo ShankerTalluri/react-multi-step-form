@@ -1,30 +1,30 @@
-import checkoutFormModel from './checkoutFormModel';
+import registrationFormModel from "./registrationFormModel";
 const {
   formField: {
     firstName,
     lastName,
-    address1,
+    email,
+    phone,
+    gender,
+    dateOfBirth,
     city,
-    zipcode,
-    country,
-    useAddressForPaymentDetails,
-    nameOnCard,
-    cardNumber,
-    expiryDate,
-    cvv
-  }
-} = checkoutFormModel;
+    pincode,
+    state,
+    schoolName,
+    curriculum,
+  },
+} = registrationFormModel;
 
 export default {
-  [firstName.name]: '',
-  [lastName.name]: '',
-  [address1.name]: '',
-  [city.name]: '',
-  [zipcode.name]: '',
-  [country.name]: '',
-  [useAddressForPaymentDetails.name]: false,
-  [nameOnCard.name]: '',
-  [cardNumber.name]: '',
-  [expiryDate.name]: '',
-  [cvv.name]: ''
+  [firstName.name]: "",
+  [lastName.name]: "",
+  [email.name]: "",
+  [phone.name]: "",
+  [pincode.name]: "",
+  [gender.name]: "",
+  [city.name]: "",
+  [state.name]: "",
+  [schoolName.name]: "",
+  [dateOfBirth.name]: "",
+  [curriculum.name]: "",
 };

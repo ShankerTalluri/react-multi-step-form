@@ -1,36 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Stepper,
   Step,
   StepLabel,
   Button,
   Typography,
-  CircularProgress
-} from '@material-ui/core';
-import { Formik, Form } from 'formik';
+  CircularProgress,
+} from "@material-ui/core";
+import { Formik, Form } from "formik";
 
-import AddressForm from './Forms/AddressForm';
-import PaymentForm from './Forms/PaymentForm';
-import ReviewOrder from './ReviewOrder';
-import CheckoutSuccess from './CheckoutSuccess';
+import Welcome_1 from "./WelcomePage";
+import StudentForm from "./Forms/StudentForm";
+import SchoolForm from "./Forms/SchoolForm";
+import ReviewProfile from "./ReviewOrder/ReviewProfile";
+import CheckoutSuccess from "./CheckoutSuccess";
 
-import validationSchema from './FormModel/validationSchema';
-import checkoutFormModel from './FormModel/checkoutFormModel';
-import formInitialValues from './FormModel/formInitialValues';
+import validationSchema from "./FormModel/validationSchema";
+import registrationFormModel from "./FormModel/registrationFormModel";
+import formInitialValues from "./FormModel/formInitialValues";
 
-import useStyles from './styles';
+import useStyles from "./styles";
 
-const steps = ['Shipping address', 'Payment details', 'Review your order'];
-const { formId, formField } = checkoutFormModel;
+const steps = ["Student Details", "School Details", "Review your Details"];
+const { formId, formField } = registrationFormModel;
 
 function _renderStepContent(step) {
   switch (step) {
     case 0:
-      return <AddressForm formField={formField} />;
+      return <StudentForm formField={formField} />;
     case 1:
-      return <PaymentForm formField={formField} />;
+      return <SchoolForm formField={formField} />;
     case 2:
-      return <ReviewOrder />;
+      return <ReviewProfile />;
     default:
       return <div>Not Found</div>;
   }
@@ -43,18 +44,58 @@ export default function CheckoutPage() {
   const isLastStep = activeStep === steps.length - 1;
 
   function _sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   async function _submitForm(values, actions) {
-    await _sleep(1000);
+    // await _sleep(1000);
     alert(JSON.stringify(values, null, 2));
-    actions.setSubmitting(false);
+    console.log(values);
 
+    const formattedData = {
+      student_name: values.firstName + " " + values.lastName,
+      email: values.email.toLocaleLowerCase(),
+      phone_no: values.phone,
+      gender: values.gender,
+      date_of_birth: values.dateOfBirth?.format("YYYY-MM-DD"),
+      school: values.schoolName,
+      location: values.city + " " + values.state,
+      pincode: values.pincode,
+      grade: values.grade,
+      curriculum: values.curriculum,
+      telegram_id: "",
+      last_progress: [],
+    };
+    console.log(formattedData);
+
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/student`, {
+      method: "post",
+      body: JSON.stringify(formattedData),
+      headers: { "Content-type": "application/json" },
+    });
+    console.log("status -> ", res.status);
+    const json = await res.json();
+    console.log(json);
+
+    if (json.error == "email exists") {
+      alert(
+        `The Email ${formattedData.email} is already in use please register using differnt Email id`
+      );
+    } else {
+      navigate("/status");
+      const email_res = await fetch(
+        `${process.env.REACT_APP_EMAIL_URL}/send-email?email=${formattedData.email}&template=registered_email&name=${values.firstName}&subject=Ask Anjlee Registration Successful`
+      );
+      const email_json = await email_res.json();
+      console.log(email_json);
+    }
+
+    actions.setSubmitting(false);
     setActiveStep(activeStep + 1);
   }
 
   function _handleSubmit(values, actions) {
+    console.log("submitted");
     if (isLastStep) {
       _submitForm(values, actions);
     } else {
@@ -70,58 +111,7 @@ export default function CheckoutPage() {
 
   return (
     <React.Fragment>
-      <Typography component="h1" variant="h4" align="center">
-        Checkout
-      </Typography>
-      <Stepper activeStep={activeStep} className={classes.stepper}>
-        {steps.map(label => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-      <React.Fragment>
-        {activeStep === steps.length ? (
-          <CheckoutSuccess />
-        ) : (
-          <Formik
-            initialValues={formInitialValues}
-            validationSchema={currentValidationSchema}
-            onSubmit={_handleSubmit}
-          >
-            {({ isSubmitting }) => (
-              <Form id={formId}>
-                {_renderStepContent(activeStep)}
-
-                <div className={classes.buttons}>
-                  {activeStep !== 0 && (
-                    <Button onClick={_handleBack} className={classes.button}>
-                      Back
-                    </Button>
-                  )}
-                  <div className={classes.wrapper}>
-                    <Button
-                      disabled={isSubmitting}
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                      className={classes.button}
-                    >
-                      {isLastStep ? 'Place order' : 'Next'}
-                    </Button>
-                    {isSubmitting && (
-                      <CircularProgress
-                        size={24}
-                        className={classes.buttonProgress}
-                      />
-                    )}
-                  </div>
-                </div>
-              </Form>
-            )}
-          </Formik>
-        )}
-      </React.Fragment>
+      <Welcome_1 />
     </React.Fragment>
   );
 }

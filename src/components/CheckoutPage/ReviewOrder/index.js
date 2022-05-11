@@ -1,2 +1,2 @@
-import ReviewOrder from './ReviewOrder';
-export default ReviewOrder;
+import ReviewProfile from "./ReviewProfile";
+export default ReviewProfile;
